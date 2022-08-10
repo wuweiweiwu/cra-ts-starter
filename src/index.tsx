@@ -1,17 +1,36 @@
-import React from "react";
+import React, { Suspense } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import { ChakraProvider } from "@chakra-ui/react";
+import { QueryClientProvider } from "react-query";
+import { queryClient } from "./lib/react-query";
+import { ErrorBoundary } from "react-error-boundary";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
 );
 root.render(
   <React.StrictMode>
-    <ChakraProvider>
-      <App />
-    </ChakraProvider>
+    <ErrorBoundary
+      FallbackComponent={({ error, resetErrorBoundary }) => {
+        return (
+          <div>
+            <p>Something went wrong:</p>
+            <pre>{error.message}</pre>
+            <button onClick={resetErrorBoundary}>Try again</button>
+          </div>
+        );
+      }}
+    >
+      <ChakraProvider>
+        <QueryClientProvider client={queryClient}>
+          <Suspense fallback={null}>
+            <App />
+          </Suspense>
+        </QueryClientProvider>
+      </ChakraProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );
 
